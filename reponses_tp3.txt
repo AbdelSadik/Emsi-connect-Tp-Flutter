@@ -1,0 +1,182 @@
+REPONSES TP3 - ListView, Card et ListTile (EMSI Connect)
+=========================================================
+
+NB : les observations A/B/C ci-dessous correspondent au comportement standard de Flutter ;
+pense à les verifier toi-meme en lancant l'application (flutter run) avec 25 elements.
+
+
+---------------------------------------------------------
+1. Column, SingleChildScrollView et ListView
+---------------------------------------------------------
+
+Observations (25 elements numerotes) :
+
+| Version                         | Elements verticaux ? | Defilement ? | Debordement ?                              |
+|---------------------------------|----------------------|--------------|--------------------------------------------|
+| A : Column seule                | Oui                  | Non          | Oui (bandeau jaune/noir "BOTTOM OVERFLOWED") |
+| B : SingleChildScrollView+Column| Oui                  | Oui          | Non                                        |
+| C : ListView                    | Oui                  | Oui          | Non                                        |
+
+Q1. Difference entre Column, SingleChildScrollView et ListView.
+- Column : aligne ses enfants les uns sous les autres, mais ne sait pas defiler.
+- SingleChildScrollView : n'affiche rien de special par lui-meme, il rend DEFILANT l'unique widget
+  qu'il contient quand celui-ci est plus grand que l'ecran.
+- ListView : une liste verticale qui defile deja toute seule, et qui est optimisee pour afficher
+  beaucoup d'elements similaires.
+
+Q2. Dans la solution B, quel widget rend la page defilante ?
+Le SingleChildScrollView. La Column ne fait que placer les elements verticalement.
+
+Q3. Pourquoi une Column seule peut-elle provoquer un debordement ?
+Une Column donne a chaque enfant sa hauteur naturelle et additionne le tout. Si le total depasse la
+hauteur de l'ecran, il n'y a aucun mecanisme pour montrer la suite : Flutter signale donc un
+RenderFlex overflow (le contenu sort de la zone visible).
+
+Q4. Choix adapte a une page "Mon profil" (photo, informations, boutons) ?
+SingleChildScrollView + Column. Le contenu est peu nombreux et de types differents (image, textes,
+boutons) ; on veut les controler librement, et pouvoir defiler si l'ecran est petit. Une ListView
+serait superflue : ce n'est pas une liste d'elements du meme genre.
+
+Q5. Choix adapte a une liste de 100 cours ?
+ListView.builder. Les 100 cartes ne sont pas toutes construites : seules celles visibles (et
+quelques-unes autour) existent en memoire, ce qui est bien plus leger et fluide.
+
+Q6. Une ListView peut-elle afficher des widgets differents ?
+Oui. Sa propriete children accepte n'importe quels widgets (Text, Card, Image, SizedBox...) ;
+rien n'oblige a ce qu'ils soient identiques.
+
+
+---------------------------------------------------------
+2. Creer une liste simple de modules
+---------------------------------------------------------
+
+Quelle difference entre padding et SizedBox ?
+- padding ajoute un espace AUTOUR du contenu d'un widget (ex. les bords de la ListView).
+- SizedBox cree un espace (ou une taille fixe) ENTRE deux widgets, par exemple SizedBox(height: 12)
+  pour separer deux modules.
+
+Quelle difference entre child et children ?
+- child recoit UN SEUL widget (ex. Card, Padding, Expanded).
+- children recoit une LISTE de widgets (ex. Column, Row, ListView).
+
+
+---------------------------------------------------------
+3. Mettre les modules dans des Card
+---------------------------------------------------------
+
+Test elevation: 0 puis elevation: 6 :
+- elevation: 0 -> la carte est "plate", plus d'ombre, elle se distingue peu du fond.
+- elevation: 6 -> l'ombre est large et marquee, la carte semble flotter au-dessus de la page.
+
+Quelle difference entre margin et padding ?
+- margin : espace EXTERIEUR, entre la carte et ses voisins (ou les bords).
+- padding : espace INTERIEUR, entre le bord de la carte et son contenu.
+
+A quoi sert elevation ?
+A regler la hauteur "virtuelle" de la surface Material, donc la taille de l'ombre portee. Cela cree
+un effet de profondeur et distingue la carte du fond.
+
+Quelle difference entre Card et Container ?
+- Card : widget Material pret a l'emploi (ombre, coins arrondis, couleur du theme).
+- Container : widget generique pour dimensionner, aligner, mettre des marges et decorer (couleur,
+  bordure...) mais sans style Material ni elevation par defaut.
+
+
+---------------------------------------------------------
+4. Structurer les informations avec ListTile
+---------------------------------------------------------
+
+Role de chaque propriete :
+- leading  : element au debut de la ligne (icone, avatar, numero).
+- title    : information principale (nom du module).
+- subtitle : information secondaire sous le titre (enseignant, volume horaire).
+- trailing : element a la fin de la ligne (fleche, bouton, icone d'action).
+
+Pourquoi ListTile plutot qu'une composition manuelle de Row et Column ?
+ListTile gere deja l'alignement, les espacements standards Material, la hauteur, l'effet de
+clic (ripple) et onTap. Avec Row + Column il faudrait tout recoder, avec plus de risques d'erreurs
+et d'incoherences visuelles.
+
+Card doit-elle obligatoirement contenir ListTile ?
+Non. Card accepte n'importe quel widget enfant (Column, Image, Padding + Text...). ListTile n'est
+qu'un contenu pratique pour les lignes d'information.
+
+Titres longs sur petit ecran :
+J'ai mis maxLines: 2 et overflow: TextOverflow.ellipsis sur le title, et isThreeLine: true pour
+que le sous-titre ne soit pas coupe. Le module "Architecture logicielle et conception orientee
+objet avancee" reste lisible sur 2 lignes.
+
+
+---------------------------------------------------------
+5. Reagir au clic avec onTap
+---------------------------------------------------------
+
+Qu'est-ce qu'un callback ?
+Une fonction qu'on donne a un widget pour qu'il l'appelle plus tard, au bon moment (ici quand
+l'utilisateur touche l'element). On ne l'execute pas nous-memes, c'est Flutter qui s'en charge.
+
+Pourquoi le code dans onTap n'est-il pas execute des l'affichage de la page ?
+Parce qu'on ne lui passe que la fonction () { ... } sans l'appeler (pas de parentheses apres).
+Elle est simplement memorisee, et ne s'execute que lorsque l'evenement "toucher" se produit.
+
+Difference entre onTap et onPressed ?
+Meme principe (callback declenche par un appui), mais onTap se trouve sur des widgets comme
+ListTile, InkWell, GestureDetector, tandis que onPressed est la propriete des boutons (ElevatedButton,
+TextButton, IconButton, FloatingActionButton).
+
+Test : j'ai touche au moins trois cartes differentes et verifie que le nom exact du module apparait
+(d'abord dans la console avec debugPrint, puis dans un SnackBar).
+
+
+---------------------------------------------------------
+6. Generer les cartes avec ListView.builder
+---------------------------------------------------------
+
+Quel est le role de itemCount ?
+Indiquer a la ListView combien d'elements au total elle doit pouvoir construire (modules.length).
+Sans lui, le builder ne saurait pas quand s'arreter.
+
+Que represente index ?
+La position de l'element en cours de construction dans la liste, en partant de 0 (0, 1, 2 ...).
+
+Pourquoi modules[index] fonctionne-t-il ?
+Parce que index va de 0 a modules.length - 1, soit exactement les positions valides de la liste.
+modules[index] donne donc le module correspondant a la carte construite.
+
+Difference entre ListView(children: [...]) et ListView.builder ?
+- ListView(children) : tous les widgets sont crees immediatement, meme ceux hors ecran. Pratique
+  pour peu d'elements.
+- ListView.builder : les widgets sont crees a la demande, uniquement quand ils approchent de la zone
+  visible, a partir d'une collection de donnees. Plus efficace pour les longues listes, et on
+  n'ecrit le code de la carte qu'une seule fois.
+
+Ajout de deux modules : j'ai simplement ajoute deux elements a la liste Dart, sans ecrire de
+nouvelle Card ; la liste affiche automatiquement 8 cartes.
+
+
+---------------------------------------------------------
+7. Comprendre les contraintes de hauteur
+---------------------------------------------------------
+
+Pourquoi Expanded corrige-t-il ce probleme dans une Column de hauteur bornee ?
+La Column donne une hauteur illimitee a ses enfants non flexibles ; une ListView a besoin d'une
+hauteur finie pour savoir ou elle defile. Expanded lui donne tout l'espace restant dans la Column
+(hauteur de l'ecran moins le titre), donc une hauteur precise : l'erreur "unbounded height" disparait.
+
+Verification : le titre "Modules du semestre" reste fixe pendant que seule la liste defile.
+
+Pourquoi n'est-il pas necessaire d'entourer systematiquement ListView de SingleChildScrollView ?
+Parce que ListView defile deja par elle-meme. Ajouter un SingleChildScrollView serait redondant,
+et provoquerait meme des conflits de contraintes (deux zones de defilement imbriquees) et une
+perte de l'optimisation du builder.
+
+
+---------------------------------------------------------
+8. Defis
+---------------------------------------------------------
+
+- Defi A : liste de Map {nom, enseignant, heures, icone} ; affichage via modules[index]['nom'], etc.
+- Defi B : numero du module dans un CircleAvatar(child: Text('${index + 1}')) dans leading.
+- Defi C : SnackBar avec le nom exact du module : Text('Module sélectionné : $nom').
+- Defi D : titres limites a 2 lignes (maxLines + ellipsis), isThreeLine pour le sous-titre,
+  marge de 12 entre les cartes et padding de 12 autour de la liste.
