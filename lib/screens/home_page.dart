@@ -80,43 +80,39 @@ class HomePage extends StatelessWidget {
               ),
               const SizedBox(height: 32),
 
-              // ----------------------------- Partie 5 : rubriques (2 x 2)
-              // Ligne 1
-              const Row(
-                children: [
-                  Expanded(
-                    child: _RubriqueCard(
-                      icon: Icons.menu_book,
-                      label: 'Mes cours',
-                    ),
-                  ),
-                  SizedBox(width: 12), // espace entre les colonnes
-                  Expanded(
-                    child: _RubriqueCard(
-                      icon: Icons.calendar_month,
-                      label: 'Planning',
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12), // espace entre les lignes
-              // Ligne 2
-              const Row(
-                children: [
-                  Expanded(
-                    child: _RubriqueCard(
-                      icon: Icons.person,
-                      label: 'Mon profil',
-                    ),
-                  ),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: _RubriqueCard(
-                      icon: Icons.task_alt,
-                      label: 'Mes tâches',
-                    ),
-                  ),
-                ],
+              // ----------------------------- TP4 Partie 7 : rubriques en GridView
+              // (remplace les deux Row du TP1 : 2 colonnes sur téléphone,
+              // 3 sur tablette). La page défile déjà (SingleChildScrollView) :
+              // shrinkWrap + NeverScrollableScrollPhysics évitent deux scrolls imbriqués.
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 720),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final columns = constraints.maxWidth < 600 ? 2 : 3;
+                    return GridView.count(
+                      crossAxisCount: columns,
+                      mainAxisSpacing: 12,
+                      crossAxisSpacing: 12,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      children: const [
+                        _RubriqueCard(
+                          icon: Icons.menu_book,
+                          label: 'Mes cours',
+                        ),
+                        _RubriqueCard(
+                          icon: Icons.calendar_month,
+                          label: 'Planning',
+                        ),
+                        _RubriqueCard(icon: Icons.person, label: 'Mon profil'),
+                        _RubriqueCard(
+                          icon: Icons.task_alt,
+                          label: 'Mes tâches',
+                        ),
+                      ],
+                    );
+                  },
+                ),
               ),
             ],
           ),
@@ -155,6 +151,8 @@ class _RubriqueCard extends StatelessWidget {
         border: Border.all(color: Colors.blue.shade100), // bordure bleu clair
       ),
       child: Column(
+        mainAxisAlignment:
+            MainAxisAlignment.center, // centré dans la cellule de la grille
         children: [
           Icon(icon, size: 40, color: Colors.blue),
           const SizedBox(height: 8),

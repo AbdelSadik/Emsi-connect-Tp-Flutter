@@ -1,14 +1,17 @@
 // Importe Material (MaterialApp, widgets de base).
 import 'package:flutter/material.dart';
-// Les pages des TP précédents sont conservées (le TP interdit de les supprimer).
-import 'screens/home_page.dart';
-import 'screens/profile_page.dart';
-// TP3 : la nouvelle page « Mes cours ».
-import 'screens/courses_page.dart';
+
+import 'screens/login_page.dart';
+import 'theme/app_theme.dart';
+
+// Pour tester une autre page (TP1 à TP3), ajouter l'import voulu :
+//   import 'screens/home_page.dart';      -> const HomePage()
+//   import 'screens/profile_page.dart';   -> const ProfilePage()
+//   import 'screens/courses_page.dart';   -> const CoursesPage()
+// puis remplacer `home:` ci-dessous (et le remettre sur LoginPage ensuite).
 
 // Point d'entrée de l'application : Flutter commence ici.
 void main() {
-  // runApp démarre l'app avec MyApp comme widget racine.
   runApp(const MyApp());
 }
 
@@ -18,13 +21,21 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // MaterialApp : configure l'application (thème, titre, page de départ...).
-    return MaterialApp(
-      title: 'EMSI Connect', // nom de l'app (utilisé par le système)
-      debugShowCheckedModeBanner: false, // cache le bandeau « DEBUG »
-      // TP3 : affichage provisoire de CoursesPage.
-      // Pour revenir aux pages précédentes : const HomePage() ou const ProfilePage().
-      home: const CoursesPage(),
+    // Une SEULE MaterialApp pour toute l'application : le thème est déclaré
+    // ici, les pages ne créent jamais leur propre MaterialApp.
+    // ValueListenableBuilder reconstruit l'app quand le mode clair/sombre change.
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: themeModeNotifier,
+      builder: (context, mode, _) {
+        return MaterialApp(
+          title: 'EMSI Connect',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.light(),
+          darkTheme: AppTheme.dark(),
+          themeMode: mode,
+          home: const LoginPage(),
+        );
+      },
     );
   }
 }
