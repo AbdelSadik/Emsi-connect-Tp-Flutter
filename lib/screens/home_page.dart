@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
 
+import 'about_page.dart';
+import 'courses_page.dart';
+import 'login_page.dart';
+import 'multimedia_page.dart';
+import 'profile_page.dart';
+import 'settings_page.dart';
+
 /// Page d'accueil de l'application EMSI Connect (TP1).
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -9,6 +16,8 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
     return Scaffold(
       // ----------------------------- Partie 3 : AppBar
       appBar: AppBar(
@@ -33,6 +42,98 @@ class HomePage extends StatelessWidget {
             },
           ),
         ],
+      ),
+
+      // ----------------------------- TP5 : Drawer
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            UserAccountsDrawerHeader(
+              decoration: BoxDecoration(color: colors.primary),
+              accountName: const Text('Étudiant EMSI'),
+              accountEmail: const Text('etudiant@emsi.ma'),
+              currentAccountPicture: CircleAvatar(
+                backgroundColor: colors.onPrimary,
+                child: Icon(Icons.person, color: colors.primary),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.home_outlined),
+              title: const Text('Accueil'),
+              selected: true,
+              onTap: () => Navigator.pop(context),
+            ),
+            ListTile(
+              leading: const Icon(Icons.menu_book_outlined),
+              title: const Text('Mes cours'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const CoursesPage()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.person_outline),
+              title: const Text('Mon profil'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ProfilePage()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.perm_media),
+              title: const Text('Espace multimédia'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MultimediaPage()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.info_outline),
+              title: const Text('À propos'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AboutPage()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings_outlined),
+              title: const Text('Paramètres'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SettingsPage()),
+                );
+              },
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Déconnexion'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
+                  (route) => false,
+                );
+              },
+            ),
+          ],
+        ),
       ),
 
       // ----------------------------- Partie 4 : contenu principal
@@ -95,17 +196,36 @@ class HomePage extends StatelessWidget {
                       crossAxisSpacing: 12,
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      children: const [
+                      children: [
                         _RubriqueCard(
                           icon: Icons.menu_book,
                           label: 'Mes cours',
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const CoursesPage(),
+                              ),
+                            );
+                          },
                         ),
-                        _RubriqueCard(
+                        const _RubriqueCard(
                           icon: Icons.calendar_month,
                           label: 'Planning',
                         ),
-                        _RubriqueCard(icon: Icons.person, label: 'Mon profil'),
                         _RubriqueCard(
+                          icon: Icons.person,
+                          label: 'Mon profil',
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ProfilePage(),
+                              ),
+                            );
+                          },
+                        ),
+                        const _RubriqueCard(
                           icon: Icons.task_alt,
                           label: 'Mes tâches',
                         ),
@@ -134,34 +254,37 @@ class HomePage extends StatelessWidget {
 }
 
 /// Bloc visuel d'une rubrique : une icône et son libellé.
-/// (Pas de navigation pour l'instant : elle sera ajoutée aux prochains TP.)
+/// onTap optionnel : navigation ajoutée au TP5.
 class _RubriqueCard extends StatelessWidget {
-  const _RubriqueCard({required this.icon, required this.label});
+  const _RubriqueCard({required this.icon, required this.label, this.onTap});
 
   final IconData icon;
   final String label;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16), // ≥ 12 px autour du contenu
-      decoration: BoxDecoration(
-        color: Colors.blue.shade50, // bleu très clair
-        borderRadius: BorderRadius.circular(12), // coins arrondis
-        border: Border.all(color: Colors.blue.shade100), // bordure bleu clair
-      ),
-      child: Column(
-        mainAxisAlignment:
-            MainAxisAlignment.center, // centré dans la cellule de la grille
-        children: [
-          Icon(icon, size: 40, color: Colors.blue),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-          ),
-        ],
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16), // ≥ 12 px autour du contenu
+        decoration: BoxDecoration(
+          color: Colors.blue.shade50,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.blue.shade100),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 40, color: Colors.blue),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
       ),
     );
   }

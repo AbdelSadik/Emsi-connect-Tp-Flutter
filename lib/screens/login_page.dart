@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../utils/validators.dart';
 import '../widgets/theme_toggle_button.dart';
+import 'home_page.dart';
 import 'register_page.dart';
 
 /// Écran de connexion (TP4). Contrôles LOCAUX uniquement :
@@ -31,13 +32,11 @@ class _LoginPageState extends State<LoginPage> {
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
-      final email = _emailController.text.trim();
-      // Jamais le mot de passe dans le SnackBar ni dans la console.
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(content: Text('Saisie valide (test local) : $email')),
-        );
+      // Navigation provisoire (TP5) : aucune authentification réelle.
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomePage()),
+      );
     } else {
       setState(() => _autoMode = AutovalidateMode.onUserInteraction);
     }

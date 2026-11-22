@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'student_details_page.dart';
+
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
@@ -50,6 +52,21 @@ class ProfilePage extends StatelessWidget {
               const _InfoTile(label: 'Niveau', value: 'S5'),
               const SizedBox(height: 12),
               const _InfoTile(label: 'Email', value: 'sara@example.com'),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const StudentDetailsPage(
+                        studentName: 'Sara El Amrani',
+                        program: 'Informatique',
+                      ),
+                    ),
+                  );
+                },
+                child: const Text('Voir les détails'),
+              ),
             ],
           ),
         ),
